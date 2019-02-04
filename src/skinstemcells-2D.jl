@@ -179,7 +179,7 @@ function runsimulation(SM::SkinStemCellModel2D; progress = false, restart = fals
                 N = sum(values(scpool) .!= 0)
             end
             if progress == true
-                update!(p, SM.tend - t)
+                ProgressMeter.update!(p, SM.tend - t)
             end
             if N == 0
                 #@warn "Population died out"
@@ -216,7 +216,7 @@ function runsimulation(SM::SkinStemCellModel2D; progress = false, restart = fals
                 N = sum(values(pool) .!= 0)
             end
             if progress == true
-                update!(p, SM.tend - t)
+                ProgressMeter.update!(p, SM.tend - t)
             end
             if N == 0
                 #@warn "Population died out"

@@ -1,7 +1,7 @@
 abstract type StemCell end
 abstract type StemCellModel end
 
-mutable struct SkinStemCell
+mutable struct SkinStemCell <: StemCell
     r::Float64
     λ::Float64
     Δ::Float64
@@ -11,7 +11,7 @@ mutable struct SkinStemCell
     mutationsp::Array{Int64, 1}
 end
 
-mutable struct SkinStemCellModel
+mutable struct SkinStemCellModel <: StemCellModel
     Ns::Int64
     tend::Float64
     μd::Float64
@@ -139,7 +139,7 @@ function runsimulation(SM::SkinStemCellModel; progress = false, restart = false,
                 N = length(scpool)
             end
             if progress == true
-                update!(p, SM.tend - t)
+                ProgressMeter.update!(p, SM.tend - t)
             end
             if N == 0
                 #@warn "Population died out"
@@ -174,7 +174,7 @@ function runsimulation(SM::SkinStemCellModel; progress = false, restart = false,
                 N = length(scpool)
             end
             if progress == true
-                update!(p, SM.tend - t)
+                ProgressMeter.update!(p, SM.tend - t)
             end
             if N == 0
                 #@warn "Population died out"
