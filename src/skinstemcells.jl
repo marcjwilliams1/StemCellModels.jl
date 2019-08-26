@@ -47,7 +47,9 @@ struct SkinStemCellResults
     SkinStemCellResults(stemcells, SM) =
     new(stemcells, SM, clonesize(stemcells, SM),
     mutationfrequencies(stemcells, SM)[1],
-    mutationfrequencies(stemcells, SM)[2])
+    mutationfrequencies(stemcells, SM)[2],
+    mutationsize(stemcells, SM)[1],
+    mutationsize(stemcells, SM)[2])
 
 end
 
