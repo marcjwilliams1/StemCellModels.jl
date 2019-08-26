@@ -226,12 +226,14 @@ function mutationfrequencies(scells, SM)
         mutationfrequency_passengers = []
     else
         mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells)) ./ length(scells)
+        filter!(x -> x > 0.0, mutationfrequency_passengers)
     end
 
     if length(md) == 0
         mutationfrequency_drivers = []
     else
         mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells)) ./ length(scells)
+        filter!(x -> x > 0.0, mutationfrequency_drivers)
     end
     return mutationfrequency_drivers, mutationfrequency_passengers
 end
@@ -243,12 +245,14 @@ function mutationsize(scells, SM)
         mutationfrequency_passengers = []
     else
         mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells))
+        filter!(x -> x > 0.0, mutationfrequency_passengers)
     end
 
     if length(md) == 0
         mutationfrequency_drivers = []
     else
         mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells))
+        filter!(x -> x > 0.0, mutationfrequency_drivers)
     end
     return mutationfrequency_drivers, mutationfrequency_passengers
 end
@@ -292,4 +296,26 @@ function averageclonesize2(results::SkinStemCellResults)
     seltheory = 1 / (log(Ncp) * (exp(1/Ncp) - 1))
     return DataFrame(data = avesize, theoryneut = neuttheory,
     seltheory = seltheory)
+end
+
+function show(io::IO, results::SkinStemCellResults)
+    println("######################################")
+    println("Input parameters:")
+    println("   Number of Stem Cells: $(results.SM.Ns)")
+    println("   rλ: $(results.SM.r * results.SM.λ)")
+    println("   Δ: $(results.SM.Δ)")
+    println("   μd: $(results.SM.μd)")
+    println("   μp: $(results.SM.μp)")
+    println("   ρ: $(results.SM.ρ)")
+    println()
+    println("######################################")
+    println("Results:")
+    println("   Number of cells: $(length(results.stemcells))")
+    println("   Mean driver clone size: $(mean(results.mutationsize_d))")
+    println("   Mean passenger clone size: $(mean(results.mutationsize_p))")
+    println("   Mean driver clone frequency: $(mean(results.mutationfrequencies_d))")
+    println("   Mean passenger clone frequency: $(mean(results.mutationfrequencies_p))")
+    println()
+    #println(UnicodePlots.histogram(results.mutationfrequencies_d))
+    println("######################################")
 end
