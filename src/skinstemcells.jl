@@ -39,9 +39,10 @@ struct SkinStemCellResults
     stemcells::Array{SkinStemCell, 1}
     SM::SkinStemCellModel
     clonesize::DataFrame
+    mutationfrequencies::Array{Float64, 1}
 
     SkinStemCellResults(stemcells, SM) =
-    new(stemcells, SM, clonesize(stemcells, SM))
+    new(stemcells, SM, clonesize(stemcells, SM), mutationfrequencies(stemcells, SM))
 
 end
 
@@ -209,6 +210,16 @@ Pn(r, λ, t, n) = (1 / log.(r * λ * t)) .* exp.(-n / (r * λ * t)) .* (1 ./ n)
 function Pn(r, λ, t, n, Δ)
     Ncp = ((1 + Δ) * exp(2 * r * λ * Δ * t) - (1 - Δ)) / (2 * Δ)
     return (1 ./ n) .* (1 / log(Ncp)) .* exp.(-n ./ Ncp)
+end
+
+function mutationfrequencies(scells, SM)
+    mp, md = cellsconvert(scells)
+    m = [mp; md]
+    if length(m) == 0
+        return []
+    end
+    mutationfrequency = StatsBase.counts(sort(StatsBase.counts(m, 1:maximum(m))), 1:length(scells))
+    return mutationfrequency
 end
 
 
