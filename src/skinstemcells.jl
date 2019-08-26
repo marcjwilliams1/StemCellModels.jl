@@ -39,7 +39,8 @@ struct SkinStemCellResults
     stemcells::Array{SkinStemCell, 1}
     SM::SkinStemCellModel
     clonesize::DataFrame
-    mutationfrequencies::Array{Float64, 1}
+    mutationfrequencies_d::Array{Float64, 1}
+    mutationfrequencies_p::Array{Float64, 1}
 
     SkinStemCellResults(stemcells, SM) =
     new(stemcells, SM, clonesize(stemcells, SM), mutationfrequencies(stemcells, SM))
@@ -218,8 +219,9 @@ function mutationfrequencies(scells, SM)
     if length(m) == 0
         return []
     end
-    mutationfrequency = StatsBase.counts(sort(StatsBase.counts(m, 1:maximum(m))), 1:length(scells))
-    return mutationfrequency
+    mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells)) ./ length(scells)
+    mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells)) ./ length(scells)
+    return mutationfrequency_drivers, mutationfrequency_passengers
 end
 
 
