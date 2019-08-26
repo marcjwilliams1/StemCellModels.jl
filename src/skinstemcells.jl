@@ -43,7 +43,9 @@ struct SkinStemCellResults
     mutationfrequencies_p::Array{Float64, 1}
 
     SkinStemCellResults(stemcells, SM) =
-    new(stemcells, SM, clonesize(stemcells, SM), mutationfrequencies(stemcells, SM))
+    new(stemcells, SM, clonesize(stemcells, SM),
+    mutationfrequencies(stemcells, SM)[1],
+    mutationfrequencies(stemcells, SM)[2])
 
 end
 
