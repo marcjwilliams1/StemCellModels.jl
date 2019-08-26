@@ -41,6 +41,8 @@ struct SkinStemCellResults
     clonesize::DataFrame
     mutationfrequencies_d::Array{Float64, 1}
     mutationfrequencies_p::Array{Float64, 1}
+    mutationsize_d::Array{Float64, 1}
+    mutationsize_p::Array{Float64, 1}
 
     SkinStemCellResults(stemcells, SM) =
     new(stemcells, SM, clonesize(stemcells, SM),
@@ -218,11 +220,34 @@ end
 function mutationfrequencies(scells, SM)
     mp, md = cellsconvert(scells)
     m = [mp; md]
-    if length(m) == 0
-        return []
+    if length(mp) == 0
+        mutationfrequency_passengers = []
+    else
+        mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells)) ./ length(scells)
     end
-    mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells)) ./ length(scells)
-    mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells)) ./ length(scells)
+
+    if length(md) == 0
+        mutationfrequency_drivers = []
+    else
+        mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells)) ./ length(scells)
+    end
+    return mutationfrequency_drivers, mutationfrequency_passengers
+end
+
+function mutationsize(scells, SM)
+    mp, md = cellsconvert(scells)
+    m = [mp; md]
+    if length(mp) == 0
+        mutationfrequency_passengers = []
+    else
+        mutationfrequency_passengers = StatsBase.counts(sort(StatsBase.counts(mp, 1:maximum(mp))), 1:length(scells))
+    end
+
+    if length(md) == 0
+        mutationfrequency_drivers = []
+    else
+        mutationfrequency_drivers = StatsBase.counts(sort(StatsBase.counts(md, 1:maximum(md))), 1:length(scells))
+    end
     return mutationfrequency_drivers, mutationfrequency_passengers
 end
 
