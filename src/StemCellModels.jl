@@ -8,11 +8,11 @@ using RecipesBase
 using DataStructures
 using UnicodePlots
 
+import Base: show
+
 include("skinstemcells.jl")
 include("skinstemcells-2D.jl")
 include("plots.jl")
-
-import Base.show
 
 export
   SkinStemCellModel,
