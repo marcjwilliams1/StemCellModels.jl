@@ -43,13 +43,15 @@ struct SkinStemCellResults
     mutationfrequencies_p::Array{Float64, 1}
     mutationsize_d::Array{Float64, 1}
     mutationsize_p::Array{Float64, 1}
+    hitchikers::Array{Int64, 1}
 
     SkinStemCellResults(stemcells, SM) =
     new(stemcells, SM, clonesize(stemcells, SM),
     mutationfrequencies(stemcells, SM)[1],
     mutationfrequencies(stemcells, SM)[2],
     mutationsize(stemcells, SM)[1],
-    mutationsize(stemcells, SM)[2])
+    mutationsize(stemcells, SM)[2],
+    mutationsize(stemcells, SM)[3])
 
 end
 
@@ -206,11 +208,14 @@ function cellsconvert(scells)
     #convert from array of cell types to one array with mutations and one array with cell fitness
     mutationsp = Int64[]
     mutationsd = Int64[]
+    hitchiker = Int64[]
     for i in 1:length(scells)
+        driver = Int64(length(scells[i].mutationsd) > 0)
         append!(mutationsp, scells[i].mutationsp)
         append!(mutationsd, scells[i].mutationsd)
+        append!(hitchiker, fill(driver, length(scells[i].mutationsp)))
     end
-    return mutationsp, mutationsd
+    return mutationsp, mutationsd, hitchiker
 end
 
 Pn(r, λ, t, n) = (1 / log.(r * λ * t)) .* exp.(-n / (r * λ * t)) .* (1 ./ n)
@@ -220,13 +225,19 @@ function Pn(r, λ, t, n, Δ)
 end
 
 function mutationfrequencies(scells, SM)
-    mp, md = cellsconvert(scells)
+    mp, md, h = cellsconvert(scells)
     m = [mp; md]
     if length(mp) == 0
         mutationfrequency_passengers = []
+        hcounts = []
     else
         mutationfrequency_passengers = StatsBase.counts(mp, 1:maximum(mp)) ./ length(scells)
-        filter!(x -> x > 0.0, mutationfrequency_passengers)
+        mcounts = StatsBase.counts(mp, 1:maximum(mp))
+        hcounts = fill(0, length(mcounts))
+        hcounts[mp[findall(x -> x > 0, h)]] .= 1
+        idxkeep = findall(x -> x > 0.0, mutationfrequency_passengers)
+        mutationfrequency_passengers = mutationfrequency_passengers[idxkeep]
+        hcounts = hcounts[idxkeep]
     end
 
     if length(md) == 0
@@ -235,17 +246,23 @@ function mutationfrequencies(scells, SM)
         mutationfrequency_drivers = StatsBase.counts(md, 1:maximum(md)) ./ length(scells)
         filter!(x -> x > 0.0, mutationfrequency_drivers)
     end
-    return mutationfrequency_drivers, mutationfrequency_passengers
+    return mutationfrequency_drivers, mutationfrequency_passengers, hcounts
 end
 
 function mutationsize(scells, SM)
-    mp, md = cellsconvert(scells)
+    mp, md, h = cellsconvert(scells)
     m = [mp; md]
     if length(mp) == 0
         mutationfrequency_passengers = []
+        hcounts = []
     else
         mutationfrequency_passengers = StatsBase.counts(mp, 1:maximum(mp))
-        filter!(x -> x > 0.0, mutationfrequency_passengers)
+        mcounts = StatsBase.counts(mp, 1:maximum(mp))
+        hcounts = fill(0, length(mcounts))
+        hcounts[mp[findall(x -> x >0, h)]] .= 1
+        idxkeep = findall(x -> x > 0.0, mutationfrequency_passengers)
+        mutationfrequency_passengers = mutationfrequency_passengers[idxkeep]
+        hcounts = hcounts[idxkeep]
     end
 
     if length(md) == 0
@@ -254,12 +271,12 @@ function mutationsize(scells, SM)
         mutationfrequency_drivers = StatsBase.counts(md, 1:maximum(md))
         filter!(x -> x > 0.0, mutationfrequency_drivers)
     end
-    return mutationfrequency_drivers, mutationfrequency_passengers
+    return mutationfrequency_drivers, mutationfrequency_passengers, hcounts
 end
 
 
 function clonesize(scells, SM)
-    mp, md = cellsconvert(scells)
+    mp, md, h = cellsconvert(scells)
     m = [mp; md]
     if length(m) == 0
         return DataFrame()

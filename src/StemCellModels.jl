@@ -21,6 +21,7 @@ export
   SkinStemCell2D,
   runsimulation,
   averageclonesize,
-  baileyclonesize
+  baileyclonesize,
+  gethitchikers
 
 end # module
