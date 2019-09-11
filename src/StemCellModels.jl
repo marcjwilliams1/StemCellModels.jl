@@ -10,8 +10,8 @@ using UnicodePlots
 
 import Base: show
 
-include("skinstemcells.jl")
-include("skinstemcells-2D.jl")
+include("stemcells.jl")
+include("stemcells-2D.jl")
 include("plots.jl")
 
 export
