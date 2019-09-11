@@ -1,7 +1,4 @@
-abstract type StemCell end
-abstract type StemCellModel end
-
-mutable struct StemCell <: StemCell
+mutable struct StemCell
     r::Float64
     λ::Float64
     Δ::Float64
@@ -11,7 +8,7 @@ mutable struct StemCell <: StemCell
     mutationsp::Array{Int64, 1}
 end
 
-mutable struct StemCellModel <: StemCellModel
+mutable struct StemCellModel
     Ns::Int64
     tend::Float64
     μd::Float64
