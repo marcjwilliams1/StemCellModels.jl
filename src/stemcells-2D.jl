@@ -1,4 +1,4 @@
-mutable struct SkinStemCell2D <: StemCell
+mutable struct StemCell2D <: StemCell
     r::Float64
     λ::Float64
     Δ::Float64
@@ -10,7 +10,7 @@ mutable struct SkinStemCell2D <: StemCell
     y::Int64
 end
 
-mutable struct SkinStemCellModel2D <: StemCellModel
+mutable struct StemCellModel2D <: StemCellModel
     Ns::Int64
     tend::Float64
     μd::Float64
@@ -24,7 +24,7 @@ mutable struct SkinStemCellModel2D <: StemCellModel
     Nx::Int64
     Ny::Int64
 
-    SkinStemCellModel2D(Ns::Int64;
+    StemCellModel2D(Ns::Int64;
     tend = 10.0,
     μd = 0.01,
     μp = 1.0,
@@ -38,27 +38,27 @@ mutable struct SkinStemCellModel2D <: StemCellModel
     Ny = 100) = new(Ns, tend, μd, μp, r, λ, Δ, Δmut, ρ, s, Nx, Ny)
 end
 
-struct SkinStemCellResults2D
-    stemcells::Array{SkinStemCell2D, 1}
-    SM::SkinStemCellModel2D
+struct StemCellResults2D
+    stemcells::Array{StemCell2D, 1}
+    SM::StemCellModel2D
 
-    function SkinStemCellResults2D(stemcells, SM)
+    function StemCellResults2D(stemcells, SM)
         idx = values(stemcells) .!= 0
         return new(collect(values(stemcells))[idx], SM)
     end
 end
 
-function copyskinstemcell(sc::SkinStemCell2D)
-    SkinStemCell2D(copy(sc.r), copy(sc.λ) , copy(sc.Δ), copy(sc.μd), copy(sc.μp), copy(sc.mutationsd), copy(sc.mutationsp),
+function copystemcell(sc::StemCell2D)
+    StemCell2D(copy(sc.r), copy(sc.λ) , copy(sc.Δ), copy(sc.μd), copy(sc.μp), copy(sc.mutationsd), copy(sc.mutationsp),
     copy(sc.x), copy(sc.y))
 end
 
-function createstemcellpool(SM::SkinStemCellModel2D)
+function createstemcellpool(SM::StemCellModel2D)
     midpoint = [round(SM.Nx ./ 2), round(SM.Nx ./ 2)]
     radius = 1.5 * sqrt(SM.Ns / π)
-    stemcellpool = SkinStemCell2D[]
+    stemcellpool = StemCell2D[]
     xycoords = String[]
-    stemcell = SkinStemCell2D(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[], midpoint[1], midpoint[2])
+    stemcell = StemCell2D(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[], midpoint[1], midpoint[2])
     stemcellpool = DefaultDict{Tuple, Any}(0)
     push!(stemcellpool, (midpoint[1], midpoint[2]) => stemcell)
     Nstemcells = 1
@@ -69,7 +69,7 @@ function createstemcellpool(SM::SkinStemCellModel2D)
         y = round(midpoint[2] + r * sin(θ))
         if stemcellpool[(x,y)] == 0
             push!(stemcellpool,
-            (x, y) => SkinStemCell2D(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[], x, y))
+            (x, y) => StemCell2D(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[], x, y))
             Nstemcells += 1
         end
     end
@@ -104,14 +104,14 @@ function placestemcell(scpool::DefaultDict, randomsc)
     #println("New stem cell: ($(newx), $(newy))")
     #println("Size of scpool: $(length(scpool))")
     if scpool[(newx,newy)] == 0
-        newstemcell = copyskinstemcell(scpool[randomsc])
+        newstemcell = copystemcell(scpool[randomsc])
         newstemcell.x = newx
         newstemcell.y = newy
         push!(scpool, (newx, newy) => newstemcell)
         return scpool, (newx, newy)
     else
         delete!(scpool, (newx, newy))
-        newstemcell = copyskinstemcell(scpool[randomsc])
+        newstemcell = copystemcell(scpool[randomsc])
         newstemcell.x = newx
         newstemcell.y = newy
         push!(scpool, (newx, newy) => newstemcell)
@@ -146,7 +146,7 @@ function randomstemcell(scpool)
     end
 end
 
-function runsimulation(SM::SkinStemCellModel2D; progress = false, restart = false, finish = "time", onedriver = true)
+function runsimulation(SM::StemCellModel2D; progress = false, restart = false, finish = "time", onedriver = true)
     scpool = createstemcellpool(SM)
     t = 0.0
     Rmax = SM.λ * (SM.s + 1) * SM.r * 2
@@ -191,7 +191,7 @@ function runsimulation(SM::SkinStemCellModel2D; progress = false, restart = fals
                     mutID = 1
                     Nmax = round(N*exp(Rmax * SM.tend))
                 else
-                    return SkinStemCellResults2D(scpool, SM)
+                    return StemCellResults2D(scpool, SM)
                 end
             end
         end
@@ -228,10 +228,10 @@ function runsimulation(SM::SkinStemCellModel2D; progress = false, restart = fals
                     mutID = 1
                     Nmax = round(N*exp(Rmax * SM.tend))
                 else
-                    return SkinStemCellResults2D(scpool, SM)
+                    return StemCellResults2D(scpool, SM)
                 end
             end
         end
     end
-    return SkinStemCellResults2D(scpool, SM)
+    return StemCellResults2D(scpool, SM)
 end

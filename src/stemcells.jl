@@ -1,7 +1,7 @@
 abstract type StemCell end
 abstract type StemCellModel end
 
-mutable struct SkinStemCell <: StemCell
+mutable struct StemCell <: StemCell
     r::Float64
     λ::Float64
     Δ::Float64
@@ -11,7 +11,7 @@ mutable struct SkinStemCell <: StemCell
     mutationsp::Array{Int64, 1}
 end
 
-mutable struct SkinStemCellModel <: StemCellModel
+mutable struct StemCellModel <: StemCellModel
     Ns::Int64
     tend::Float64
     μd::Float64
@@ -23,7 +23,7 @@ mutable struct SkinStemCellModel <: StemCellModel
     ρ::Float64
     s::Float64
 
-    SkinStemCellModel(Ns::Int64;
+    StemCellModel(Ns::Int64;
     tend = 10.0,
     μd = 0.01,
     μp = 1.0,
@@ -35,9 +35,9 @@ mutable struct SkinStemCellModel <: StemCellModel
     s = 0.0) = new(Ns, tend, μd, μp, r, λ, Δ, Δmut, ρ, s)
 end
 
-struct SkinStemCellResults
-    stemcells::Array{SkinStemCell, 1}
-    SM::SkinStemCellModel
+struct StemCellResults
+    stemcells::Array{StemCell, 1}
+    SM::StemCellModel
     clonesize::DataFrame
     mutationfrequencies_d::Array{Float64, 1}
     mutationfrequencies_p::Array{Float64, 1}
@@ -45,7 +45,7 @@ struct SkinStemCellResults
     mutationsize_p::Array{Float64, 1}
     hitchikers::Array{Int64, 1}
 
-    SkinStemCellResults(stemcells, SM) =
+    StemCellResults(stemcells, SM) =
     new(stemcells, SM, clonesize(stemcells, SM),
     mutationfrequencies(stemcells, SM)[1],
     mutationfrequencies(stemcells, SM)[2],
@@ -55,16 +55,16 @@ struct SkinStemCellResults
 
 end
 
-function copyskinstemcell(sc::SkinStemCell)
-    SkinStemCell(copy(sc.r), copy(sc.λ) , copy(sc.Δ), copy(sc.μd), copy(sc.μp), copy(sc.mutationsd), copy(sc.mutationsp))
+function copystemcell(sc::StemCell)
+    StemCell(copy(sc.r), copy(sc.λ) , copy(sc.Δ), copy(sc.μd), copy(sc.μp), copy(sc.mutationsd), copy(sc.mutationsp))
 end
 
 
-function createstemcellpool(SM::SkinStemCellModel)
-    stemcellpool = SkinStemCell[]
+function createstemcellpool(SM::StemCellModel)
+    stemcellpool = StemCell[]
     for _ in 1:SM.Ns
         push!(stemcellpool,
-        SkinStemCell(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[]))
+        StemCell(SM.r, SM.λ, SM.Δ, SM.μd, SM.μp, Int64[], Int64[]))
     end
     return stemcellpool
 end
@@ -96,7 +96,7 @@ end
 function cellturnover(scpool, randomsc, mutID, SM; onedriver = true)
     r = rand()
     if r < ((1 + scpool[randomsc].Δ) / 2)
-        push!(scpool, copyskinstemcell(scpool[randomsc]))
+        push!(scpool, copystemcell(scpool[randomsc]))
         scpool[end], mutID =
             newmutations(scpool[end], mutID, SM, onedriver = onedriver)
     else
@@ -108,7 +108,7 @@ end
 function cellturnover(scpool, randomsc; onedriver = true)
     r = rand()
     if r < ((1 + scpool[randomsc].Δ) / 2)
-        push!(scpool, copyskinstemcell(scpool[randomsc]))
+        push!(scpool, copystemcell(scpool[randomsc]))
         rdaughter = rand([randomsc, length(scells)])
         scpool[rdaughter], mutID =
             newmutations(scpool[rdaughter], mutID, SM, onedriver = onedriver)
@@ -118,7 +118,7 @@ function cellturnover(scpool, randomsc; onedriver = true)
     return scpool, mutID
 end
 
-function runsimulation(SM::SkinStemCellModel; progress = false, restart = false, finish = "time", onedriver = true)
+function runsimulation(SM::StemCellModel; progress = false, restart = false, finish = "time", onedriver = true)
     scpool = createstemcellpool(SM)
     t = 0.0
     Rmax = SM.λ * (SM.s + 1) * SM.r * 2
@@ -161,7 +161,7 @@ function runsimulation(SM::SkinStemCellModel; progress = false, restart = false,
                     mutID = 1
                     Nmax = round(N*exp(Rmax * SM.tend))
                 else
-                    return SkinStemCellResults(scpool, SM)
+                    return StemCellResults(scpool, SM)
                 end
             end
         end
@@ -196,12 +196,12 @@ function runsimulation(SM::SkinStemCellModel; progress = false, restart = false,
                     mutID = 1
                     Nmax = round(N*exp(Rmax * SM.tend))
                 else
-                    return SkinStemCellResults(scpool, SM)
+                    return StemCellResults(scpool, SM)
                 end
             end
         end
     end
-    return SkinStemCellResults(scpool, SM)
+    return StemCellResults(scpool, SM)
 end
 
 function cellsconvert(scells)
@@ -294,7 +294,7 @@ function clonesize(scells, SM)
     return DF
 end
 
-function averageclonesize(results::SkinStemCellResults)
+function averageclonesize(results::StemCellResults)
     avesize = sum(results.clonesize[:Pn] .* results.clonesize[:n])
     Ncp = (results.SM.r * results.SM.λ * results.SM.tend)
     neuttheory = (Ncp - 1) / (log(Ncp))
@@ -304,7 +304,7 @@ function averageclonesize(results::SkinStemCellResults)
     seltheory = seltheory)
 end
 
-function averageclonesize2(results::SkinStemCellResults)
+function averageclonesize2(results::StemCellResults)
     avesize = sum(results.clonesize[:Pn] .* results.clonesize[:n])
     Ncp = (results.SM.r * results.SM.λ * results.SM.tend)
 
@@ -315,7 +315,7 @@ function averageclonesize2(results::SkinStemCellResults)
     seltheory = seltheory)
 end
 
-function show(io::IO, results::SkinStemCellResults)
+function show(io::IO, results::StemCellResults)
     println("######################################")
     println("Input parameters:")
     println("   Number of Stem Cells: $(results.SM.Ns)")

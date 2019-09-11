@@ -15,10 +15,10 @@ include("stemcells-2D.jl")
 include("plots.jl")
 
 export
-  SkinStemCellModel,
-  SkinStemCell,
-  SkinStemCellModel2D,
-  SkinStemCell2D,
+  StemCellModel,
+  StemCell,
+  StemCellModel2D,
+  StemCell2D,
   runsimulation,
   averageclonesize,
   baileyclonesize,
