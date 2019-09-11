@@ -1,4 +1,4 @@
-mutable struct StemCell2D <: StemCell
+mutable struct StemCell2D
     r::Float64
     λ::Float64
     Δ::Float64
@@ -10,7 +10,7 @@ mutable struct StemCell2D <: StemCell
     y::Int64
 end
 
-mutable struct StemCellModel2D <: StemCellModel
+mutable struct StemCellModel2D
     Ns::Int64
     tend::Float64
     μd::Float64
