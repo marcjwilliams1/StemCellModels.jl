@@ -13,6 +13,7 @@ import Base: show
 include("stemcells.jl")
 include("stemcells-2D.jl")
 include("plots.jl")
+include("util.jl")
 
 export
   StemCellModel,
