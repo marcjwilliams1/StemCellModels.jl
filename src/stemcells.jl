@@ -289,8 +289,8 @@ function clonesize(scells, SM)
     Cn = clonefrequency,
     Pn = cloneprobability
     )
-    DF[:Pntheory] = Pn(SM.r, SM.λ, SM.tend, DF[:n])
-    DF[:Pntheoryselection] = Pn(SM.r, SM.λ, SM.tend, DF[:n], SM.Δ)
+    DF.Pntheory = Pn(SM.r, SM.λ, SM.tend, DF.n)
+    DF.Pntheoryselection = Pn(SM.r, SM.λ, SM.tend, DF.n, SM.Δ)
     return DF
 end
 
