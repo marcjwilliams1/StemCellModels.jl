@@ -115,7 +115,7 @@ function cellturnover(scpool, randomsc; onedriver = true)
     return scpool, mutID
 end
 
-function runsimulation(SM::StemCellModel; progress = false, restart = false, finish = "time", onedriver = true)
+function runsimulation(SM::StemCellModel; progress = false, restart = false, finish = "time", onedriver = true, maxcells = 10^7)
     scpool = createstemcellpool(SM)
     t = 0.0
     Rmax = SM.λ * (SM.s + 1) * SM.r * 2
@@ -160,6 +160,10 @@ function runsimulation(SM::StemCellModel; progress = false, restart = false, fin
                 else
                     return StemCellResults(scpool, SM)
                 end
+            end
+            if N > maxcells
+                @warn "Population size is $(N), greater than input maxcells $(maxcells), time is $(t)"
+                return StemCellResults(scpool, SM)
             end
         end
     else
