@@ -51,7 +51,7 @@ isapprox(round.(results.clonesize[:Pn], digits = 4),
  round.(results.clonesize[:Pntheory], digits = 4), rtol = 0.1)
 
 N = 10^4
-SM = SkinStemCellModel(N, Δ = 0.0, Δmut = 0.1, μp = 0.0, μd = 0.1, tend = 50.0)
+SM = StemCellModel(N, Δ = 0.0, Δmut = 0.1, μp = 0.0, μd = 0.1, tend = 50.0)
 results = runsimulation(SM, progress = true, onedriver = true)
 results.clonesize
 isapprox(round.(results.clonesize[:Pn], digits = 4),round.(results.clonesize[:Pntheory], digits = 4), rtol = 0.1)

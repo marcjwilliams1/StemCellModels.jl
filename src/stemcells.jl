@@ -275,6 +275,20 @@ function mutationsize(scells, SM)
     return mutationfrequency_drivers, mutationfrequency_passengers, hcounts
 end
 
+function Nt(Δ, r, λ, t)
+    if Δ == 0
+        res = 1 + r * λ * t
+    else
+        res = ((1 + Δ) * exp(2 * r * λ * Δ * t) - (1 - Δ) )/ (2 * Δ)
+    end
+    return res
+end
+
+function Cn(r, λ, tend, n, n0, μ, Δ)
+    A = (μ * n0)./(r .* λ .* n)
+    B = exp.(- n ./ Nt(Δ, r, λ, tend))
+    return (A .* B)/10
+end
 
 function clonesize(scells, SM)
     mp, md, h = cellsconvert(scells)
@@ -292,12 +306,14 @@ function clonesize(scells, SM)
     )
     DF.Pntheory = Pn(SM.r, SM.λ, SM.tend, DF.n)
     DF.Pntheoryselection = Pn(SM.r, SM.λ, SM.tend, DF.n, SM.Δ)
+    DF.Cntheory = Cn(SM.r, SM.λ, SM.tend, DF.n, SM.Ns, SM.μp/2, 0.0)
+    DF.Cntheoryselection = Cn(SM.r, SM.λ, SM.tend, DF.n, SM.Ns, SM.μd/2, SM.Δmut)
     return DF
 end
 
 function averageclonesize(results::StemCellResults)
     avesize = sum(results.clonesize[:Pn] .* results.clonesize[:n])
-    Ncp = (results.SM.r * results.SM.λ * results.SM.tend)
+    Ncp = (1 + results.SM.r * results.SM.λ * results.SM.tend)
     neuttheory = (Ncp - 1) / (log(Ncp))
     Ncp = ((1 + results.SM.Δmut) * exp(2 * results.SM.r * results.SM.λ * results.SM.Δmut * results.SM.tend) - (1 - results.SM.Δmut)) / (2 * results.SM.Δmut)
     seltheory = (Ncp - 1) / (log(Ncp))

@@ -1,8 +1,8 @@
 @recipe function f(results::StemCellResults; cutoff = 100)
     n = results.clonesize[:n][1:cutoff]
-    Pn = results.clonesize[:Pn][1:cutoff]
-    Pntheory = results.clonesize[:Pntheory]
-    Pntheoryselection = results.clonesize[:Pntheoryselection]
+    Pn = results.clonesize[:Cn][1:cutoff]
+    Pntheory = results.clonesize[:Cntheory]
+    Pntheoryselection = results.clonesize[:Cntheoryselection]
 
     @series begin
         seriestype --> :bar
