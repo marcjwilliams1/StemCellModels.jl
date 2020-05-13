@@ -6,7 +6,7 @@ julia package to simulate clonal expansions in normal tissues, the simulation mo
 ## Install package
 
 ```julia
-] add https://github.com/marcjwilliams1/StemCellModels.jl
+] add StemCellModels
 ```
 
 ## Getting started
