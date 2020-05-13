@@ -83,7 +83,7 @@ function newmutations(sc::StemCell, mutID, SM::StemCellModel; onedriver = true)
     mutID = mutID + numbermutationsd
 
     if numbermutationsd > 0
-        sc.Δ = SM.Δmut
+        sc.Δ = rand(Exponential(SM.Δmut))
         sc.λ = (1 + SM.s) * sc.λ
     end
 
